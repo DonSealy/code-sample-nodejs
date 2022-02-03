@@ -1,0 +1,2 @@
+node_modules
+test/dynamodb-local/dynamodb_local_latest_20191209/shared-local-instance.db

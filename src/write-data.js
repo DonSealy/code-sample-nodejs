@@ -4,6 +4,8 @@ const dynamodb = new AWS.DynamoDB.DocumentClient({
   apiVersion: "2012-08-10",
   endpoint: new AWS.Endpoint("http://localhost:8000"),
   region: "us-west-2",
+  accessKeyId: 'xxxx',
+  secretAccessKey: 'xxxx',
   // what could you do to improve performance?
 });
 
@@ -20,9 +22,7 @@ const tableName = "SchoolStudents";
  * @param {string} event.studentLastName
  * @param {string} event.studentGrade
  */
-exports.handler = (event) => {
-  const docClient = new AWS.DynamoDB.DocumentClient();
-
+exports.handler = async (event) => {
   // TODO validate that all expected attributes are present (assume they are all required)
   if (event.schoolId.length < 1) throw new Error("No school id given.");
   
@@ -50,18 +50,5 @@ exports.handler = (event) => {
     },
   };
 
-  try {
-    let result = await docClient.put(params).promise();
-    
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        message: `Student Id ${event.studentId} successfully recorded.`,
-        data: result,
-      }),
-    };
-  } catch (error) {a
-    console.log(error);
-    return error;
-  }
+  await dynamodb.put(params).promise();
 };
