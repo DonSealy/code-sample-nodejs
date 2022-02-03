@@ -24,24 +24,7 @@ const tableName = "SchoolStudents";
  * @param {string} event.studentGrade
  */
 exports.handler = async (event) => {
-  // In a real Lambda, I would return a 400 error with the message.
-  if (!event.schoolId)
-    throw new Error("No school id given.");
-  
-  if (!event.schoolName)
-    throw new Error("No school name given.");
-  
-  if (!event.studentId)
-    throw new Error("No student id given.");
-  
-  if (!event.studentFirstName)
-    throw new Error("No student first name given.");
-  
-  if (!event.studentLastName)
-    throw new Error("No student last name given.");
-  
-  if (!event.studentGrade)
-    throw new Error("No student grade given.");
+  ValidateEventParameters(event);
 
   let params = {
     TableName: tableName,
@@ -57,3 +40,23 @@ exports.handler = async (event) => {
 
   await dynamodb.put(params).promise();
 };
+
+function ValidateEventParameters(event) {
+  if (!event.schoolId)
+    throw new Error("No school id given.");
+
+  if (!event.schoolName)
+    throw new Error("No school name given.");
+
+  if (!event.studentId)
+    throw new Error("No student id given.");
+
+  if (!event.studentFirstName)
+    throw new Error("No student first name given.");
+
+  if (!event.studentLastName)
+    throw new Error("No student last name given.");
+
+  if (!event.studentGrade)
+    throw new Error("No student grade given.");
+}

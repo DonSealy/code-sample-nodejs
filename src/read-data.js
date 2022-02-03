@@ -22,7 +22,6 @@ const studentLastNameGsiName = "studentLastNameGsi";
  * @param {string} [event.studentLastName]
  */
 exports.handler = async (event) => {
-  // In a real Lambda, I would return a 400 error with the message.
   if (!event.schoolId && !event.studentLastName) 
     throw new Error('A school id or student last name must be given.');
 
