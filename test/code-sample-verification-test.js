@@ -1,7 +1,11 @@
 const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
 const assert = chai.assert;
 const uuid = require('uuid/v4');
 const localDynamoDbUtils = require('./dynamodb-local/dynamodb-local-util');
+
+const { expect } = chai;
+chai.use(chaiAsPromised);
 
 // software under test
 const readData = require('./../src/read-data');
@@ -86,6 +90,150 @@ describe('the code sample', function () {
     assert.equal(queryResult.length, 10, 'Expected to find ten results');
   });
 
+  //-------------------------
+  // Additional test cases.
+  //-------------------------
+
+  it('saves data to DynamoDB and then attempts to find a different student than what was saved', async function () {
+    const schoolId = uuid();
+    const studentId = uuid();
+
+    const schoolStudent = {
+      schoolId: schoolId,
+      schoolName: 'Code Sample Academy',
+      studentId: studentId,
+      studentFirstName: 'Jane',
+      studentLastName: 'Doe',
+      studentGrade: '8',
+    };
+
+    await writeData.handler(schoolStudent);
+
+    const query = {
+      schoolId: schoolId,
+      studentId: 'notarealstudent',
+    };
+    const queryResult = await readData.handler(query);
+
+    assert.isTrue(Array.isArray(queryResult), 'Expected queryResult to be of type Array');
+    assert.equal(queryResult.length, 0, 'Expected to find no results');
+  });
+
+  it('writeData fails if school id parameter is missing.', async function () {
+    // const schoolId = uuid();
+    const studentId = uuid();
+
+    let schoolStudent = {
+      //schoolId: schoolId,
+      schoolName: 'Code Sample Academy',
+      studentId: studentId,
+      studentFirstName: 'Jane',
+      studentLastName: 'Doe',
+      studentGrade: '8',
+    };
+
+    return expect(writeData.handler(schoolStudent))
+      .to.eventually.be.rejectedWith('No school id given.');
+  });
+
+  it('writeData fails if school name parameter is missing.', async function () {
+    const schoolId = uuid();
+    const studentId = uuid();
+
+    let schoolStudent = {
+      schoolId: schoolId,
+      // schoolName: 'Code Sample Academy',
+      studentId: studentId,
+      studentFirstName: 'Jane',
+      studentLastName: 'Doe',
+      studentGrade: '8',
+    };
+
+    return expect(writeData.handler(schoolStudent))
+      .to.eventually.be.rejectedWith('No school name given.');
+  });
+
+  it('writeData fails if student id parameter is missing.', async function () {
+    const schoolId = uuid();
+    // const studentId = uuid();
+
+    let schoolStudent = {
+      schoolId: schoolId,
+      schoolName: 'Code Sample Academy',
+      // studentId: studentId,
+      studentFirstName: 'Jane',
+      studentLastName: 'Doe',
+      studentGrade: '8',
+    };
+
+    return expect(writeData.handler(schoolStudent))
+      .to.eventually.be.rejectedWith('No student id given.');
+  });
+
+  it('writeData fails if student first name parameter is missing.', async function () {
+    const schoolId = uuid();
+    const studentId = uuid();
+
+    let schoolStudent = {
+      schoolId: schoolId,
+      schoolName: 'Code Sample Academy',
+      studentId: studentId,
+      // studentFirstName: 'Jane',
+      studentLastName: 'Doe',
+      studentGrade: '8',
+    };
+
+    return expect(writeData.handler(schoolStudent))
+      .to.eventually.be.rejectedWith('No student first name given.');
+  });
+
+  it('writeData fails if student last name parameter is missing.', async function () {
+    const schoolId = uuid();
+    const studentId = uuid();
+
+    let schoolStudent = {
+      schoolId: schoolId,
+      schoolName: 'Code Sample Academy',
+      studentId: studentId,
+      studentFirstName: 'Jane',
+      // studentLastName: 'Doe',
+      studentGrade: '8',
+    };
+
+    return expect(writeData.handler(schoolStudent))
+      .to.eventually.be.rejectedWith('No student last name given.');
+  });
+
+  it('writeData fails if student grade parameter is missing.', async function () {
+    const schoolId = uuid();
+    const studentId = uuid();
+
+    let schoolStudent = {
+      schoolId: schoolId,
+      schoolName: 'Code Sample Academy',
+      studentId: studentId,
+      studentFirstName: 'Jane',
+      studentLastName: 'Doe',
+      // studentGrade: '8',
+    };
+
+    return expect(writeData.handler(schoolStudent))
+      .to.eventually.be.rejectedWith('No student grade given.');
+  });
+
+  it('readData fails if no school id or student last name parameter is given.', async function () {
+    // searching for school students by school name is not supported.
+    let schoolStudent = {
+      schoolName: 'Code Sample Academy',
+    };
+
+    return expect(readData.handler(schoolStudent))
+      .to.eventually.be.rejectedWith('A school id or student last name must be given.');
+  });
+
+  //-------------------------
+  // End additional test cases.
+  //-------------------------
 
   // This section starts the local DynamoDB database
   before(async function () {

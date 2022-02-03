@@ -7,6 +7,7 @@ const dynamodb = new AWS.DynamoDB.DocumentClient({
   accessKeyId: 'xxxx',
   secretAccessKey: 'xxxx',
   // what could you do to improve performance?
+  // Batch bulk writes.
 });
 
 const tableName = "SchoolStudents";
@@ -23,21 +24,25 @@ const tableName = "SchoolStudents";
  * @param {string} event.studentGrade
  */
 exports.handler = async (event) => {
-  // TODO validate that all expected attributes are present (assume they are all required)
-  if (event.schoolId.length < 1) throw new Error("No school id given.");
+  // In a real Lambda, I would return a 400 error with the message.
+  if (!event.schoolId)
+    throw new Error("No school id given.");
   
-  if (event.schoolName.length < 1) throw new Error("No school name given.");
+  if (!event.schoolName)
+    throw new Error("No school name given.");
   
-  if (event.studentId.length < 1) throw new Error("No student id given.");
+  if (!event.studentId)
+    throw new Error("No student id given.");
   
-  if (event.studentFirstName.length < 1) throw new Error("No student first name given.");
+  if (!event.studentFirstName)
+    throw new Error("No student first name given.");
   
-  if (event.studentLastName.length < 1) throw new Error("No student last name given.");
+  if (!event.studentLastName)
+    throw new Error("No student last name given.");
   
-  if (event.studentGrade.length < 1) throw new Error("No student grade given.");
+  if (!event.studentGrade)
+    throw new Error("No student grade given.");
 
-  // TODO use the AWS.DynamoDB.DocumentClient to save the 'SchoolStudent' record
-  // The 'SchoolStudents' table key is composed of schoolId (partition key) and studentId (range key).
   let params = {
     TableName: tableName,
     Item: {
